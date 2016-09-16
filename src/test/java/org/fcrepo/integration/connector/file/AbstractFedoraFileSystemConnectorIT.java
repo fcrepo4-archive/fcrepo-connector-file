@@ -164,10 +164,10 @@ public abstract class AbstractFedoraFileSystemConnectorIT {
         // Instead of creating dummy files over which to federate,
         // we configure the FedoraFileSystemFederation instances to
         // point to paths within the "target" directory.
-        final File testDir1 = new File("target/test-classes/config/testing");
+        final File testDir1 = new File("target/test-classes/test-objects/config/testing");
         setProperty(PROP_TEST_DIR1, testDir1.getAbsolutePath());
 
-        final File testDir2 = new File("target/test-classes/spring-test");
+        final File testDir2 = new File("target/test-classes/test-objects/spring-test");
         cleanUpJsonFilesFiles(testDir2);
         setProperty(PROP_TEST_DIR2, testDir2.getAbsolutePath());
 

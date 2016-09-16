@@ -9,7 +9,7 @@
     "externalSources" : {
         "federated-directory" : {
             "classname" : "org.fcrepo.connector.file.FedoraFileSystemConnector",
-            "directoryPath" : "target/test-classes/test-objects/config/testing",
+            "directoryPath" : "${fcrepo.test.connector.file.directory1:must-be-provided}",
             "projections" : [ "default:/federated => /" ],
             "contentBasedSha1" : "false",
             "readonly" : false,
@@ -17,21 +17,21 @@
         },
         "federated-directory-read-only" : {
             "classname" : "org.fcrepo.connector.file.FedoraFileSystemConnector",
-            "directoryPath" : "target/test-classes/test-objects/spring-test",
-            "propertiesDirectoryPath" : "target/test-classes-properties",
+            "directoryPath" : "${fcrepo.test.connector.file.directory2:must-be-provided}",
+            "propertiesDirectoryPath" : "${fcrepo.test.connector.file.properties.directory:must-be-provided}",
             "projections" : [ "default:/readonly-federated => /" ],
             "contentBasedSha1" : "true",
             "cacheTtlSeconds" : 0,
             "readonly" : true
         },
         "fileSystem" : {
-            "classname" : "org.fcrepo.connector.file.FedoraFileSystemConnector",
-            "directoryPath" : "target/test-classes/test-objects",
-            "readonly" : true,
-            "extraPropertiesStorage": "json",
-            "cacheable" : false,
-            "projections" : [ "default:/files => /" ]
-        }
+        	"classname" : "org.fcrepo.connector.file.FedoraFileSystemConnector",
+        	"directoryPath" : "target/test-classes/test-objects",
+        	"readonly" : true,
+        	"extraPropertiesStorage": "json",
+        	"cacheable" : false,
+        	"projections" : [ "default:/files => /" ]
+      	}
     },
     "storage" : {
         "binaryStorage" : {
