@@ -9,7 +9,7 @@
     "externalSources" : {
         "federated-directory" : {
             "classname" : "org.fcrepo.connector.file.FedoraFileSystemConnector",
-            "directoryPath" : "target/test-classes/test-objects/config/testing",
+            "directoryPath" : "target/test-classes/obj-dir1",
             "projections" : [ "default:/federated => /" ],
             "contentBasedSha1" : "false",
             "readonly" : false,
@@ -17,8 +17,8 @@
         },
         "federated-directory-read-only" : {
             "classname" : "org.fcrepo.connector.file.FedoraFileSystemConnector",
-            "directoryPath" : "target/test-classes/test-objects/spring-test",
-            "propertiesDirectoryPath" : "target/test-classes-properties",
+            "directoryPath" : "target/test-classes/obj-dir2",
+            "propertiesDirectoryPath" : "target/test-classes/obj-dir3",
             "projections" : [ "default:/readonly-federated => /" ],
             "contentBasedSha1" : "true",
             "cacheTtlSeconds" : 0,

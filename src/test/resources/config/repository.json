@@ -1,0 +1,49 @@
+{
+    "name" : "repo",
+    "jndiName" : "",
+    "workspaces" : {
+        "predefined" : [],
+        "default" : "default",
+        "allowCreation" : true
+    },
+    "externalSources" : {
+        "federated-directory" : {
+            "classname" : "org.fcrepo.connector.file.FedoraFileSystemConnector",
+            "directoryPath" : "target/test-classes/obj-dir1",
+            "projections" : [ "default:/federated => /" ],
+            "contentBasedSha1" : "false",
+            "readonly" : false,
+            "extraPropertiesStorage" : "json"
+        },
+        "federated-directory-read-only" : {
+            "classname" : "org.fcrepo.connector.file.FedoraFileSystemConnector",
+            "directoryPath" : "target/test-classes/obj-dir2",
+            "propertiesDirectoryPath" : "target/test-classes-properties",
+            "projections" : [ "default:/readonly-federated => /" ],
+            "contentBasedSha1" : "true",
+            "cacheTtlSeconds" : 0,
+            "readonly" : true
+        },
+        "fileSystem" : {
+          "classname" : "org.fcrepo.connector.file.FedoraFileSystemConnector",
+          "directoryPath" : "target/test-classes/test-objects",
+          "readonly" : true,
+          "extraPropertiesStorage": "json",
+          "cacheable" : false,
+          "projections" : [ "default:/files => /" ]
+        }
+    },
+    "storage" : {
+      "binaryStorage" : {
+        "type" : "transient",
+        "minimumBinarySizeInBytes" : 40
+      }
+    },
+    "security" : {
+        "anonymous" : {
+            "roles" : ["readonly","readwrite","admin"],
+            "useOnFailedLogin" : true
+        }
+    },
+    "node-types" : ["fedora-node-types.cnd"]
+}
