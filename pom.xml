@@ -5,10 +5,13 @@
     <artifactId>fcrepo</artifactId>
     <version>4.7.0-SNAPSHOT</version>
   </parent>
+  
+  <groupId>org.fcrepo.connector-file</groupId>
   <artifactId>fcrepo-connector-file</artifactId>
+  <packaging>bundle</packaging>
+
   <name>Fedora Repository FileSystem Connector Module</name>
   <description>The Fedora Commons repository filesystem connector module: Provides repository projection over hierarchical files/directories on the filesystem.</description>
-  <packaging>bundle</packaging>
 
   <properties>
     <osgi.import.packages>
