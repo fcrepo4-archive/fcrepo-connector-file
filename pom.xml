@@ -5,7 +5,7 @@
     <artifactId>fcrepo</artifactId>
     <version>4.7.0-SNAPSHOT</version>
   </parent>
-  
+
   <artifactId>fcrepo-connector-file</artifactId>
   <packaging>bundle</packaging>
 
@@ -13,6 +13,7 @@
   <description>The Fedora Commons repository filesystem connector module: Provides repository projection over hierarchical files/directories on the filesystem.</description>
 
   <properties>
+    <jetty.plugin.version>9.3.11.v20160721</jetty.plugin.version>
     <osgi.import.packages>
       org.fcrepo.kernel.api.*,
 
@@ -30,7 +31,6 @@
   </properties>
 
   <dependencies>
-
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-kernel-modeshape</artifactId>
@@ -41,28 +41,15 @@
       <groupId>javax.jcr</groupId>
       <artifactId>jcr</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.modeshape</groupId>
       <artifactId>modeshape-jcr</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.glassfish.hk2.external</groupId>
-      <artifactId>javax.inject</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <scope>test</scope>
-    </dependency>
+
+    <!-- test gear -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -77,41 +64,24 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
     </dependency>
-
-    <!--  test dependencies -->
     <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-server</artifactId>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.glassfish.grizzly</groupId>
-      <artifactId>grizzly-http-server</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.grizzly</groupId>
-      <artifactId>grizzly-http-servlet</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-      <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+      <groupId>org.fcrepo</groupId>
+      <artifactId>fcrepo-webapp</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-http-commons</artifactId>
-      <version>${fcrepo.version}</version>
-      <scope>test</scope>
+      <version>${project.version}</version>
       <type>test-jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.fcrepo</groupId>
-      <artifactId>fcrepo-http-api</artifactId>
-      <version>${fcrepo.version}</version>
       <scope>test</scope>
-      <type>test-jar</type>
     </dependency>
   </dependencies>
   <build>
@@ -123,15 +93,118 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
+        <configuration>
+          <portNames>
+            <portName>fcrepo.dynamic.test.port</portName>
+            <portName>jetty.dynamic.stop.port</portName>
+          </portNames>
+        </configuration>
+        <executions>
+          <execution>
+            <id>reserve-port</id>
+            <phase>package</phase>
+            <goals>
+              <goal>reserve-network-port</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
-            <systemPropertyVariables>
-                 <fcrepo.modeshape.configuration>classpath:config/testing/repository.json</fcrepo.modeshape.configuration>
-            </systemPropertyVariables>
+          <systemPropertyVariables>
+            <fcrepo.dynamic.test.port>${fcrepo.dynamic.test.port}</fcrepo.dynamic.test.port>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
+        <!-- Launch jetty for integration testing with fedora -->
+        <plugin>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-maven-plugin</artifactId>
+          <version>${jetty.plugin.version}</version>
+          <configuration>
+            <systemProperties>
+              <force>true</force>
+              <systemProperty>
+                <name>fcrepo.home</name>
+                <value>${project.build.directory}/fcrepo-data</value>
+              </systemProperty>
+              <systemProperty>
+                <name>fcrepo.modeshape.configuration</name>
+                <value>file:${project.build.directory}/test-classes/config/repository_it.json</value>
+              </systemProperty>
+              <systemProperty>
+                <name>fcrepo.spring.jms.configuration</name>
+                <value>file:${project.build.directory}/test-classes/spring-test/noop.xml</value>
+              </systemProperty>
+            </systemProperties>
+            <scanIntervalSeconds>10</scanIntervalSeconds>
+            <stopKey>STOP</stopKey>
+            <stopPort>${jetty.dynamic.stop.port}</stopPort>
+            <daemon>true</daemon>
+            <classesDirectory>${project.build.directory}/classes</classesDirectory>
+          </configuration>
+          <executions>
+            <execution>
+              <id>start-jetty</id>
+              <phase>pre-integration-test</phase>
+              <goals>
+                <goal>stop</goal>
+                <goal>start</goal>
+              </goals>
+              <configuration>
+                <httpConnector>
+                  <port>${fcrepo.dynamic.test.port}</port>
+                </httpConnector>
+                <scanIntervalSeconds>0</scanIntervalSeconds>
+                <daemon>true</daemon>
+                <contextHandlers>
+                    <contextHandler implementation="org.eclipse.jetty.maven.plugin.JettyWebAppContext">
+                      <war>${project.build.directory}/fcrepo.war</war>
+                      <contextPath>/fcrepo</contextPath>
+                      <!-- load the fcrepo-connector-file classes into the webapp -->
+                      <extraClasspath>${project.build.directory}/classes/</extraClasspath>
+                    </contextHandler>
+                </contextHandlers>
+              </configuration>
+            </execution>
+
+            <execution>
+              <id>stop-jetty</id>
+              <phase>post-integration-test</phase>
+               <goals>
+                 <goal>stop</goal>
+               </goals>
+             </execution>
+          </executions>
+        </plugin>
+
+        <!--Bring in fcrepo webapp for integration testing-->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>copy</id>
+              <phase>package</phase>
+              <goals>
+                <goal>copy</goal>
+              </goals>
+              <configuration>
+                <artifactItems>
+                  <artifactItem>
+                    <groupId>org.fcrepo</groupId>
+                    <artifactId>fcrepo-webapp</artifactId>
+                    <version>${fcrepo.version}</version>
+                    <type>war</type>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <destFileName>fcrepo.war</destFileName>
+                  </artifactItem>
+                </artifactItems>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
     </plugins>
   </build>
 </project>
