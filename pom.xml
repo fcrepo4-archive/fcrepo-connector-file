@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo</artifactId>
-    <version>4.7.0-SNAPSHOT</version>
+    <version>4.8.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>fcrepo-connector-file</artifactId>
@@ -27,7 +27,7 @@
     <osgi.export.packages>
       org.fcrepo.connector.file;version=${project.version}
     </osgi.export.packages>
-    <fcrepo.version>4.7.0-SNAPSHOT</fcrepo.version>
+    <fcrepo.version>4.8.0-SNAPSHOT</fcrepo.version>
   </properties>
 
   <dependencies>
