@@ -17,6 +17,7 @@
  */
 package org.fcrepo.integration.connector.file;
 
+import org.fcrepo.kernel.api.FedoraSession;
 import org.fcrepo.kernel.api.exception.RepositoryRuntimeException;
 import org.fcrepo.kernel.api.models.FedoraResource;
 import org.fcrepo.kernel.api.rdf.DefaultRdfStream;
@@ -26,11 +27,11 @@ import org.junit.Test;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 
 import static org.apache.jena.graph.NodeFactory.createURI;
 import static org.fcrepo.kernel.api.RdfLexicon.REPOSITORY_NAMESPACE;
 import static org.fcrepo.kernel.api.RequiredRdfContext.PROPERTIES;
+import static org.fcrepo.kernel.modeshape.FedoraSessionImpl.getJcrSession;
 import static org.fcrepo.kernel.modeshape.utils.FedoraTypesUtils.getJcrNode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -63,7 +64,7 @@ public class BasicReadWriteFedoraFileSystemConnectorIT extends AbstractFedoraFil
 
     @Test(expected = RepositoryRuntimeException.class)
     public void testWriteProperty() throws RepositoryException {
-        final Session session = repo.login();
+        final FedoraSession session = repo.login();
         try {
             final FedoraResource object = nodeService.find(session, testFilePath());
             assertNotNull(object);
@@ -77,7 +78,8 @@ public class BasicReadWriteFedoraFileSystemConnectorIT extends AbstractFedoraFil
             // Write the properties
             try (final DefaultRdfStream originalTriples =
                     new DefaultRdfStream(createURI("info:fedora" + testFilePath()))) {
-                object.updateProperties(new DefaultIdentifierTranslator(session), sparql, originalTriples);
+                object.updateProperties(
+                        new DefaultIdentifierTranslator(getJcrSession(session)), sparql, originalTriples);
             }
 
             // Verify
@@ -85,15 +87,15 @@ public class BasicReadWriteFedoraFileSystemConnectorIT extends AbstractFedoraFil
             assertNotNull(property);
             assertEquals("some-test-name", property.getValues()[0].toString());
 
-            session.save();
+            session.commit();
         } finally {
-            session.logout();
+            session.expire();
         }
     }
 
     @Test(expected = RepositoryRuntimeException.class)
     public void testRemoveProperty() throws RepositoryException {
-        final Session session = repo.login();
+        final FedoraSession session = repo.login();
         try {
             final FedoraResource object = nodeService.find(session, testFilePath());
             assertNotNull(object);
@@ -105,7 +107,7 @@ public class BasicReadWriteFedoraFileSystemConnectorIT extends AbstractFedoraFil
                     "'some-property-to-remove' }";
 
             // Write the properties
-            final DefaultIdentifierTranslator graphSubjects = new DefaultIdentifierTranslator(session);
+            final DefaultIdentifierTranslator graphSubjects = new DefaultIdentifierTranslator(getJcrSession(session));
             try (final DefaultRdfStream originalTriples =
                     new DefaultRdfStream(createURI("info:fedora" + testFilePath()))) {
                 object.updateProperties(graphSubjects, sparql, originalTriples);
@@ -129,7 +131,7 @@ public class BasicReadWriteFedoraFileSystemConnectorIT extends AbstractFedoraFil
                     object.getTriples(graphSubjects, PROPERTIES));
 
             // Persist the object (although the propery will be removed from memory without this.)
-            session.save();
+            session.commit();
 
             // Verify
             boolean thrown = false;
@@ -140,7 +142,7 @@ public class BasicReadWriteFedoraFileSystemConnectorIT extends AbstractFedoraFil
             }
             assertTrue("Exception expected - property should be missing", thrown);
         } finally {
-            session.logout();
+            session.expire();
         }
     }
 }

@@ -17,13 +17,13 @@
  */
 package org.fcrepo.integration.connector.file;
 
+import org.fcrepo.kernel.api.FedoraSession;
 import org.fcrepo.kernel.api.models.FedoraResource;
 
 import org.junit.Test;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 
 import static org.fcrepo.kernel.modeshape.utils.FedoraTypesUtils.getJcrNode;
 import static com.google.common.collect.Iterators.size;
@@ -57,14 +57,14 @@ public class ReadOnlyExternalPropertiesFedoraFileSystemConnectorIT extends Abstr
 
     @Test
     public void verifyThatPropertiesAreExternal() throws RepositoryException {
-        final Session session = repo.login();
+        final FedoraSession session = repo.login();
         try {
             final FedoraResource object = nodeService.find(session, testFilePath());
             assertEquals(
                     "There should be exactly as many visible nodes as actual files (ie, no hidden sidecar files).",
                     fileForNode().getParentFile().list().length, getChildCount(getJcrNode(object).getParent()));
         } finally {
-            session.logout();
+            session.expire();
         }
     }
 

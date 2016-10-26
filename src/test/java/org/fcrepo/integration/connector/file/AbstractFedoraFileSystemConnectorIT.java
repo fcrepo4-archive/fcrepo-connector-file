@@ -31,6 +31,7 @@ import static org.fcrepo.kernel.api.FedoraTypes.FEDORA_CONTAINER;
 import static org.fcrepo.kernel.api.RdfLexicon.HAS_MESSAGE_DIGEST;
 import static org.fcrepo.kernel.api.RdfCollectors.toModel;
 import static org.fcrepo.kernel.api.utils.ContentDigest.asURI;
+import static org.fcrepo.kernel.modeshape.FedoraSessionImpl.getJcrSession;
 import static org.fcrepo.kernel.modeshape.utils.FedoraTypesUtils.getJcrNode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -53,9 +54,7 @@ import java.util.Iterator;
 
 import javax.inject.Inject;
 import javax.jcr.Node;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.jena.rdf.model.Model;
@@ -64,6 +63,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
+import org.fcrepo.kernel.api.FedoraRepository;
+import org.fcrepo.kernel.api.FedoraSession;
 import org.fcrepo.kernel.api.models.Container;
 import org.fcrepo.kernel.api.models.FedoraBinary;
 import org.fcrepo.kernel.api.models.FedoraResource;
@@ -94,7 +95,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public abstract class AbstractFedoraFileSystemConnectorIT {
 
     @Inject
-    protected Repository repo;
+    protected FedoraRepository repo;
 
     @Inject
     protected NodeService nodeService;
@@ -207,7 +208,7 @@ public abstract class AbstractFedoraFileSystemConnectorIT {
 
     @Test
     public void testGetFederatedObject() throws RepositoryException {
-        final Session session = repo.login();
+        final FedoraSession session = repo.login();
 
         final Container object = containerService.findOrCreate(session, testDirPath());
         assertNotNull(object);
@@ -219,13 +220,13 @@ public abstract class AbstractFedoraFileSystemConnectorIT {
         final boolean found = transform(asList(mixins), NodeType::getName).contains(FEDORA_CONTAINER);
         assertTrue("Mixin not found: " + FEDORA_CONTAINER, found);
 
-        session.save();
-        session.logout();
+        session.commit();
+        session.expire();
     }
 
     @Test
     public void testGetFederatedDatastream() throws RepositoryException {
-        final Session session = repo.login();
+        final FedoraSession session = repo.login();
 
         final FedoraResource description = binaryService.findOrCreate(session, testFilePath()).getDescription();
         assertNotNull(description);
@@ -238,13 +239,13 @@ public abstract class AbstractFedoraFileSystemConnectorIT {
                 .contains(FEDORA_NON_RDF_SOURCE_DESCRIPTION);
         assertTrue("Mixin not found: " + FEDORA_NON_RDF_SOURCE_DESCRIPTION, found);
 
-        session.save();
-        session.logout();
+        session.commit();
+        session.expire();
     }
 
     @Test
     public void testGetFederatedContent() throws RepositoryException {
-        final Session session = repo.login();
+        final FedoraSession session = repo.login();
 
         final Node node = getJcrNode(nodeService.find(session, testFilePath() + "/jcr:content"));
         assertNotNull(node);
@@ -260,23 +261,23 @@ public abstract class AbstractFedoraFileSystemConnectorIT {
         assertTrue(file.getAbsolutePath(), file.exists());
         assertEquals(file.length(), node.getProperty(CONTENT_SIZE).getLong());
 
-        session.save();
-        session.logout();
+        session.commit();
+        session.expire();
     }
 
     @Test
     public void testFixity() throws RepositoryException, IOException, NoSuchAlgorithmException {
-        final Session session = repo.login();
+        final FedoraSession session = repo.login();
 
         checkFixity(binaryService.findOrCreate(session, testFilePath()));
 
-        session.save();
-        session.logout();
+        session.commit();
+        session.expire();
     }
 
     @Test
     public void testChangedFileFixity() throws RepositoryException, IOException, NoSuchAlgorithmException {
-        final Session session = repo.login();
+        final FedoraSession session = repo.login();
 
         final FedoraBinary binary = binaryService.findOrCreate(session, testFilePath());
 
@@ -289,8 +290,8 @@ public abstract class AbstractFedoraFileSystemConnectorIT {
 
         assertNotEquals("Checksum is expected to have changed!", originalFixity, newFixity);
 
-        session.save();
-        session.logout();
+        session.commit();
+        session.expire();
     }
 
     private String checkFixity(final FedoraBinary binary)
@@ -302,7 +303,7 @@ public abstract class AbstractFedoraFileSystemConnectorIT {
 
         final URI calculatedChecksum = asURI(SHA_1.toString(), hash);
 
-        final DefaultIdentifierTranslator graphSubjects = new DefaultIdentifierTranslator(repo.login());
+        final DefaultIdentifierTranslator graphSubjects = new DefaultIdentifierTranslator(getJcrSession(repo.login()));
         final Model results = binary.getFixity(graphSubjects).collect(toModel());
         assertNotNull(results);
 
