@@ -30,6 +30,13 @@
     <fcrepo.version>4.7.0-SNAPSHOT</fcrepo.version>
   </properties>
 
+  <scm>
+    <connection>scm:git:git://github.com/fcrepo4-exts/${project.artifactId}.git</connection>
+    <developerConnection>scm:git:git@github.com:fcrepo4-exts/${project.artifactId}.git</developerConnection>
+    <url>https://github.com/fcrepo4-exts/fcrepo-connector-file</url>
+    <tag>HEAD</tag>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.fcrepo</groupId>
