@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.fcrepo</groupId>
     <artifactId>fcrepo</artifactId>
-    <version>4.7.0-SNAPSHOT</version>
+    <version>4.7.0</version>
   </parent>
 
   <artifactId>fcrepo-connector-file</artifactId>
@@ -34,14 +34,14 @@
     <connection>scm:git:git://github.com/fcrepo4-exts/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:fcrepo4-exts/${project.artifactId}.git</developerConnection>
     <url>https://github.com/fcrepo4-exts/fcrepo-connector-file</url>
-    <tag>HEAD</tag>
+    <tag>fcrepo-connector-file-4.7.0</tag>
   </scm>
 
   <dependencies>
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-kernel-modeshape</artifactId>
-      <version>${fcrepo.version}</version>
+      <version>4.7.0</version>
     </dependency>
 
     <dependency>
@@ -79,14 +79,14 @@
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-webapp</artifactId>
-      <version>${project.version}</version>
+      <version>4.7.0</version>
       <type>war</type>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.fcrepo</groupId>
       <artifactId>fcrepo-http-commons</artifactId>
-      <version>${project.version}</version>
+      <version>4.7.0</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
