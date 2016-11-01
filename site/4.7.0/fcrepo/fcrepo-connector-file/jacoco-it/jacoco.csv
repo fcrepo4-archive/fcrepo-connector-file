@@ -1,0 +1,3 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Fedora Repository FileSystem Connector Module,org.fcrepo.connector.file,ExternalJsonSidecarExtraPropertyStore,266,165,42,14,32,40,28,8,3,5
+Fedora Repository FileSystem Connector Module,org.fcrepo.connector.file,FedoraFileSystemConnector,128,472,25,37,29,97,27,26,4,18
