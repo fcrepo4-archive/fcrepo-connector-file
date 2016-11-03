@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.fcrepo.kernel.api.RdfLexicon.MODE_NAMESPACE;
+import static org.fcrepo.kernel.modeshape.RdfJcrLexicon.MODE_NAMESPACE;
 import static org.fcrepo.http.commons.test.util.TestHelpers.parseTriples;
 
 import java.io.File;
